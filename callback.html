@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="referrer" content="no-referrer">
+<title>Código de autorización</title>
+<style>
+  body{font-family:system-ui,-apple-system,sans-serif;margin:0;padding:24px;background:#111;color:#eee;text-align:center}
+  h1{font-size:1.3rem;font-weight:600}
+  #val{font-family:ui-monospace,Menlo,monospace;font-size:1.6rem;word-break:break-all;background:#222;border-radius:12px;padding:20px;margin:20px auto;max-width:640px;user-select:all}
+  button{font-size:1.3rem;padding:14px 32px;border:0;border-radius:12px;background:#3e6ae1;color:#fff}
+  .err{color:#ff7070}
+  p{color:#aaa}
+</style>
+</head>
+<body>
+<h1 id="title">Código de autorización</h1>
+<div id="val">—</div>
+<button id="copy" type="button">Copiar</button>
+<p id="hint">Pulsa «Copiar» y pégalo en el chat.</p>
+<script>
+(function(){
+  var q = new URLSearchParams(location.search);
+  var code = q.get("code"), err = q.get("error");
+  var val = document.getElementById("val");
+  if (code) {
+    val.textContent = code;
+  } else if (err) {
+    document.getElementById("title").textContent = "Error";
+    val.className = "err";
+    val.textContent = err + (q.get("error_description") ? ": " + q.get("error_description") : "");
+    document.getElementById("hint").textContent = "Copia este error y pégalo en el chat.";
+  } else {
+    val.textContent = "No hay código en esta dirección.";
+  }
+  document.getElementById("copy").onclick = function(){
+    var t = val.textContent, b = this;
+    function done(){ b.textContent = "¡Copiado!"; setTimeout(function(){ b.textContent = "Copiar"; }, 2000); }
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(t).then(done, fallback);
+    } else { fallback(); }
+    function fallback(){
+      var r = document.createRange(); r.selectNodeContents(val);
+      var s = getSelection(); s.removeAllRanges(); s.addRange(r);
+      try { document.execCommand("copy"); done(); } catch(e) {}
+    }
+  };
+})();
+</script>
+</body>
+</html>
